@@ -1,284 +1,165 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puzzle Gambar Gunung Bromo</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            text-align: center;
-            background-color: #f0f8ff; /* Warna latar belakang cerah */
-            padding: 20px;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Main Puzzle Fun</title>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      font-family:'Poppins',sans-serif;
+      background:linear-gradient(135deg,#74ebd5,#ACB6E5);
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      height:100vh; overflow:hidden;
+    }
 
-        h1 {
-            color: #4a4a4a;
-        }
+    h1 {
+      color:#fff;
+      text-shadow:0 2px 8px rgba(0,0,0,0.3);
+      margin-bottom:20px;
+    }
 
-        #puzzle-container {
-            display: grid;
-            /* Grid 3x3 */
-            grid-template-columns: repeat(3, 100px); 
-            grid-template-rows: repeat(3, 100px);
-            width: 300px; /* 3 * 100px */
-            height: 300px; /* 3 * 100px */
-            margin: 20px auto;
-            border: 5px solid #ff7f50; /* Border oranye-merah */
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-        }
+    #puzzle {
+      display:grid;
+      gap:2px;
+      background:#fff;
+      border-radius:10px;
+      box-shadow:0 4px 20px rgba(0,0,0,0.3);
+      user-select:none;
+      touch-action:none;
+    }
 
-        .tile {
-            width: 100px;
-            height: 100px;
-            /* Border 1px dihapus, diganti box-shadow untuk efek grid */
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8), inset 0 0 0 1px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            background-size: 300px 300px; /* Ukuran gambar penuh */
-            box-sizing: border-box;
-            transition: transform 0.2s ease-in-out; /* Untuk animasi perpindahan */
-            line-height: 100px;
-            font-size: 20px;
-            color: white;
-            text-shadow: 1px 1px 2px black;
-        }
+    .piece {
+      background-image:url('puzzel.png');
+      background-size:300% 300%;
+      cursor:pointer;
+      transition:transform 0.2s;
+      border-radius:4px;
+    }
 
-        .empty-tile {
-            background-image: none !important;
-            background-color: #e0e0e0; /* Petak kosong berwarna abu-abu */
-            cursor: default;
-            transition: background-color 0.3s ease;
-        }
+    .piece:hover { transform:scale(1.05); }
 
-        #shuffle-button {
-            padding: 10px 25px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #ff7f50;
-            color: white;
-            box-shadow: 0 4px #e06c40;
-            margin-bottom: 20px;
-            transition: background-color 0.1s;
-        }
+    /* Pesan sukses */
+    .success {
+      position:fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.85);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      flex-direction:column;
+      color:#fff;
+      font-size:2rem;
+      opacity:0;
+      visibility:hidden;
+      transition:0.6s;
+      z-index:10;
+    }
+    .success.active {
+      opacity:1; visibility:visible;
+      animation:pop 0.6s ease forwards;
+    }
+    @keyframes pop {
+      0% { transform:scale(0.5); opacity:0; }
+      100% { transform:scale(1); opacity:1; }
+    }
 
-        #shuffle-button:hover {
-            background-color: #ff9871;
-        }
-        
-        #shuffle-button:active {
-            box-shadow: 0 1px #e06c40;
-            transform: translateY(3px);
-        }
+    button {
+      background:#4CAF50;
+      color:#fff;
+      border:none;
+      padding:0.8rem 2rem;
+      font-size:1.2rem;
+      border-radius:30px;
+      margin-top:20px;
+      cursor:pointer;
+      transition:0.3s;
+    }
+    button:hover {
+      background:#45a049;
+      transform:translateY(-2px);
+    }
 
-        .reference {
-            margin-top: 30px;
-            border-top: 1px solid #ccc;
-            padding-top: 20px;
-        }
-
-        .original-image {
-            /* Pastikan ukuran gambar referensi sesuai dengan ukuran gambar baru */
-            width: 150px; 
-            height: auto;
-            border: 2px solid #333;
-            border-radius: 5px;
-        }
-    </style>
+    @media (max-width:600px){
+      #puzzle { width:90vw; height:90vw; }
+    }
+  </style>
 </head>
 <body>
-    <h1>Puzzle Pemandangan Gunung</h1>
-    <button id="shuffle-button">Acak Ulang & Mulai</button>
-    
-    <div id="puzzle-container">
-        </div>
-    
-    <div class="reference">
-        <h2>Gambar Asli (Referensi)</h2>
-        <img src="puzzel.png" alt="Gambar Referensi" class="original-image">
-    </div>
 
-    <script>
-        const CONTAINER = document.getElementById('puzzle-container');
-        const SHUFFLE_BUTTON = document.getElementById('shuffle-button');
-        // Ganti sumber gambar di sini
-        const IMAGE_SRC = 'puzzel.png';
-        const GRID_SIZE = 3;
-        const TILE_SIZE = 100;
+  <h1>Susun Puzzle Buah 🍓</h1>
+  <div id="puzzle"></div>
 
-        let tiles = [];
-        let emptyIndex = GRID_SIZE * GRID_SIZE - 1;
+  <div class="success" id="success">
+    <div>🎉 Selamat! Kamu Berhasil Menyelesaikan Puzzle! 🎉</div>
+    <button onclick="window.location.href='index.html'">Main Lagi</button>
+  </div>
 
-        /**
-         * Membuat dan menata semua potongan puzzle di DOM.
-         */
-        function createTiles() {
-            CONTAINER.innerHTML = '';
-            tiles = [];
-            for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
-                const tile = document.createElement('div');
-                tile.classList.add('tile');
-                tile.dataset.index = i;
-                tile.dataset.correctPos = i;
+  <script>
+    const puzzle = document.getElementById('puzzle');
+    const success = document.getElementById('success');
+    const size = 3; // puzzle 3x3
+    const pieces = [];
 
-                if (i !== emptyIndex) {
-                    const row = Math.floor(i / GRID_SIZE);
-                    const col = i % GRID_SIZE;
-                    const x = -col * TILE_SIZE;
-                    const y = -row * TILE_SIZE;
+    // atur ukuran responsif puzzle
+    let width = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+    if (width > 400) width = 400;
+    puzzle.style.width = width + 'px';
+    puzzle.style.height = width + 'px';
+    puzzle.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+    puzzle.style.gridTemplateRows = `repeat(${size}, 1fr)`;
 
-                    tile.style.backgroundImage = `url(${IMAGE_SRC})`;
-                    tile.style.backgroundPosition = `${x}px ${y}px`;
-                } else {
-                    tile.classList.add('empty-tile');
-                }
+    // buat potongan puzzle dari 1 gambar utuh
+    for (let i = 0; i < size * size; i++) {
+      const div = document.createElement('div');
+      div.classList.add('piece');
+      const x = i % size;
+      const y = Math.floor(i / size);
+      div.style.backgroundPosition = `${(x / (size - 1)) * 100}% ${(y / (size - 1)) * 100}%`;
+      div.dataset.index = i;
+      pieces.push(div);
+    }
 
-                tile.addEventListener('click', handleTileClick);
-                CONTAINER.appendChild(tile);
-                tiles.push(tile);
-            }
-        }
+    // acak urutan
+    pieces.sort(() => Math.random() - 0.5);
+    pieces.forEach(p => puzzle.appendChild(p));
 
-        /**
-         * Mengacak array secara acak.
-         */
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
+    let first = null;
+    puzzle.addEventListener('click', e => {
+      const target = e.target;
+      if (!target.classList.contains('piece')) return;
 
-        /**
-         * Mengacak posisi potongan puzzle di DOM.
-         */
-        function shufflePuzzle() {
-            const currentTiles = Array.from(CONTAINER.children);
-            let shuffledIndices = Array.from({length: currentTiles.length}, (_, i) => i);
-            
-            shuffledIndices = shuffleArray(shuffledIndices);
+      if (!first) {
+        first = target;
+        target.style.outline = '3px solid yellow';
+      } else if (first === target) {
+        first.style.outline = 'none';
+        first = null;
+      } else {
+        swap(first, target);
+        first.style.outline = 'none';
+        first = null;
+        checkWin();
+      }
+    });
 
-            const emptyTileElement = tiles.find(tile => tile.classList.contains('empty-tile'));
-            
-            // Hapus petak kosong dari array (sementara)
-            shuffledIndices.splice(shuffledIndices.indexOf(emptyIndex), 1);
-            
-            // Masukkan petak kosong ke posisi acak baru
-            const randomPos = Math.floor(Math.random() * (shuffledIndices.length + 1));
-            shuffledIndices.splice(randomPos, 0, emptyIndex);
-            
-            // Atur ulang DOM berdasarkan urutan acak
-            shuffledIndices.forEach(correctPos => {
-                CONTAINER.appendChild(tiles.find(t => parseInt(t.dataset.correctPos) === correctPos));
-            });
-            
-            // Update array tiles dan dataset.index setelah DOM diubah
-            tiles = Array.from(CONTAINER.children);
-            tiles.forEach((tile, index) => {
-                tile.dataset.index = index;
-            });
-            
-            emptyIndex = tiles.findIndex(tile => tile.classList.contains('empty-tile'));
+    function swap(a, b) {
+      const temp = document.createElement('div');
+      puzzle.insertBefore(temp, a);
+      puzzle.insertBefore(a, b);
+      puzzle.insertBefore(b, temp);
+      puzzle.removeChild(temp);
+    }
 
-            // Pastikan petak kosong memiliki gambar referensi terhapus jika sebelumnya sudah diselesaikan
-            emptyTileElement.style.backgroundImage = 'none';
-        }
-
-
-        /**
-         * Memeriksa apakah dua petak berdekatan (horisontal atau vertikal).
-         */
-        function isAdjacent(index1, index2) {
-            const r1 = Math.floor(index1 / GRID_SIZE);
-            const c1 = index1 % GRID_SIZE;
-            const r2 = Math.floor(index2 / GRID_SIZE);
-            const c2 = index2 % GRID_SIZE;
-
-            return Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1;
-        }
-
-        /**
-         * Menangani klik pada potongan.
-         */
-        function handleTileClick(event) {
-            const clickedTile = event.target;
-            if (clickedTile.classList.contains('empty-tile')) return;
-
-            const clickedIndex = parseInt(clickedTile.dataset.index);
-
-            if (isAdjacent(clickedIndex, emptyIndex)) {
-                swapTiles(clickedTile, tiles[emptyIndex]);
-                checkWin();
-            }
-        }
-
-        /**
-         * Menukar posisi dua petak di DOM dan array.
-         */
-        function swapTiles(tile1, tile2) {
-            const index1 = parseInt(tile1.dataset.index);
-            const index2 = parseInt(tile2.dataset.index);
-
-            // 1. Tukar di DOM
-            CONTAINER.insertBefore(tile2, tile1);
-            CONTAINER.insertBefore(tile1, tiles[index2 + 1] ? tiles[index2 + 1] : null); 
-
-            // 2. Tukar di array tiles 
-            [tiles[index1], tiles[index2]] = [tiles[index2], tiles[index1]];
-
-            // 3. Tukar dataset.index
-            tile1.dataset.index = index2;
-            tile2.dataset.index = index1;
-
-            // 4. Update index petak kosong
-            emptyIndex = index1; 
-        }
-
-        /**
-         * Memeriksa kondisi menang.
-         */
-        function checkWin() {
-            const isSolved = tiles.every(tile => 
-                parseInt(tile.dataset.index) === parseInt(tile.dataset.correctPos)
-            );
-
-            if (isSolved) {
-                // Tampilkan potongan kosong yang benar
-                const solvedEmptyTile = tiles[emptyIndex];
-                const row = Math.floor(emptyIndex / GRID_SIZE);
-                const col = emptyIndex % GRID_SIZE;
-                const x = -col * TILE_SIZE;
-                const y = -row * TILE_SIZE;
-
-                solvedEmptyTile.style.backgroundImage = `url(${IMAGE_SRC})`;
-                solvedEmptyTile.style.backgroundPosition = `${x}px ${y}px`;
-                solvedEmptyTile.classList.remove('empty-tile');
-                solvedEmptyTile.style.cursor = 'default';
-
-                // Hapus event listener agar tidak bisa digeser lagi
-                tiles.forEach(tile => tile.removeEventListener('click', handleTileClick));
-                
-                setTimeout(() => {
-                    alert('🎉 Selamat! Puzzle Terselesaikan dengan Sempurna! 🎉');
-                }, 100);
-            }
-        }
-
-        // Event listener untuk tombol acak
-        SHUFFLE_BUTTON.addEventListener('click', () => {
-            createTiles();
-            shufflePuzzle();
-        });
-
-        // Inisialisasi game saat halaman dimuat
-        window.onload = () => {
-            createTiles();
-            shufflePuzzle();
-        }
-    </script>
+    function checkWin() {
+      const current = [...puzzle.children];
+      const correct = current.every((p, i) => p.dataset.index == i);
+      if (correct) {
+        setTimeout(() => success.classList.add('active'), 500);
+      }
+    }
+  </script>
 </body>
-
 </html>
