@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle Fun - Main Menu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* CSS GABUNGAN */
+        body {
+            /* Latar Belakang Puzzle Simpel */
+            background: #fdfdf5;
+            background-image: radial-gradient(#ffe0b2 1px, transparent 1px), radial-gradient(#ffe0b2 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            color: #333;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .main-container {
+            text-align: center;
+            padding: 40px 60px;
+            background-color: rgba(255, 255, 255, 0.75); 
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            margin-top: 10vh;
+            z-index: 10;
+            position: relative;
+        }
+
+        .game-title {
+            font-size: 4em;
+            color: #FF8C00; 
+            -webkit-text-stroke: 2px white;
+            text-shadow: 3px 3px #ffa000, 5px 5px 0 #e07b00;
+            margin-bottom: 40px;
+            font-weight: 900;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .button {
+            text-decoration: none;
+            font-size: 1.8em;
+            padding: 10px 50px;
+            border-radius: 50px; 
+            transition: all 0.2s;
+            font-weight: bold;
+            display: inline-block;
+            width: 250px;
+            border: 5px solid #ffffff;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5), 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Tambah shadow pada teks tombol */
+        }
+
+        .play-button {
+            background-color: #00BFFF; 
+            color: white;
+        }
+
+        .play-button:hover {
+            background-color: #009ACD;
+            transform: scale(1.05);
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.8), 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .puzzles-button {
+            background-color: #4682B4; 
+            color: white;
+        }
+
+        .puzzles-button:hover {
+            background-color: #3A668D;
+            transform: scale(1.05);
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.8), 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Area Loading */
+        .loading-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #555;
+            margin-top: 20px;
+        }
+
+        .loading-icon {
+            font-size: 2.5em;
+            color: #FFD700; 
+            animation: spin 1.2s linear infinite;
+            -webkit-text-stroke: 1px #8B4513; 
+        }
+
+        .loading-text {
+            font-size: 1em;
+            font-weight: bold;
+            color: #444;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Simulasi Pagar dan Rumput */
+        .fence-area {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 250px;
+            z-index: 5;
+        }
+
+        .grass-ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(to top, #7C4F20 30%, #4CAF50 30%, #4CAF50 70%, #388E3C 100%);
+            clip-path: polygon(0 30%, 5% 35%, 10% 30%, 15% 35%, 20% 30%, 25% 35%, 30% 30%, 35% 35%, 40% 30%, 45% 35%, 50% 30%, 55% 35%, 60% 30%, 65% 35%, 70% 30%, 75% 35%, 80% 30%, 85% 35%, 90% 30%, 95% 35%, 100% 30%, 100% 100%, 0 100%);
+        }
+
+        .fence {
+            position: absolute;
+            bottom: 50px;
+            width: 100%;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 15px;
+        }
+
+        .fence span {
+            width: 10px;
+            height: 100%;
+            background-color: #8B4513;
+            border-radius: 5px 5px 0 0;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .fence::before,
+        .fence::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 15px;
+            background-color: #A0522D;
+            border: 2px solid #8B4513;
+            z-index: 1;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .fence::before {
+            top: 20px;
+        }
+
+        .fence::after {
+            bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1 class="game-title">Puzzle Fun</h1>
+
+        <div class="button-group">
+            <a href="play.html" class="button play-button">Play</a>
+
+            <a href="play.html" class="button puzzles-button">Puzzles</a>
+        </div>
+
+        <div class="loading-area">
+            <i class="fas fa-spinner loading-icon"></i>
+            <p class="loading-text">Loading...</p>
+        </div>
+
+    </div>
+
+    <div class="fence-area">
+        <div class="grass-ground"></div>
+        <div class="fence">
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+    </div>
+</body>
+</html>
